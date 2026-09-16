@@ -6,7 +6,9 @@ public class PngImage {
 
     private final PngReader pngReader;
     private IHDRChunk ihdrChunk;
-    private ArrayList<PngChunk> ancillaryChunks = new ArrayList<>();
+    private final ArrayList<PngChunk> ancillaryChunks = new ArrayList<>();
+    private final ArrayList<IDATChunk> idatChunks = new ArrayList<>();
+    private int idatSize = 0;
 
     public PngImage(ByteReader byteReader) {
         this.pngReader = new PngReader(byteReader);
@@ -21,10 +23,25 @@ public class PngImage {
         ihdrChunk = pngReader.readIHDRChunk();
         while (true) {
             PngChunk chunk = pngReader.readChunk();
-            if (chunk == null) {
+            if (chunk == null || chunk.getType() == ChunkType.IEND) {
                 break;
             }
-            ancillaryChunks.add(chunk);
+
+            if (chunk.getType() == ChunkType.IDAT) {
+                IDATChunk idatChunk = (IDATChunk) chunk;
+                idatSize += idatChunk.getLength();
+                idatChunks.add(idatChunk);
+            } else {
+                ancillaryChunks.add(chunk);
+            }
+        }
+
+        // decompression
+        byte[] idat = new byte[idatSize];
+        int i = 0;
+        for (IDATChunk chunk: idatChunks) {
+            System.arraycopy(chunk.getData(), 0, idat, i, chunk.getLength());
+            i += chunk.getLength();
         }
     }
 
