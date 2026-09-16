@@ -13,6 +13,10 @@ public class ByteReader {
         this.pos = pos;
     }
 
+    public void skipNextByte() {
+        pos++;
+    }
+
     public byte readNextByte() {
         if (pos < data.length) {
             return data[pos++];
@@ -43,11 +47,34 @@ public class ByteReader {
     }
 
     public byte[] readBytes(int length) {
-        // TODO: safeguard array length
+        if (pos + length > data.length) {
+            throw new IllegalStateException("Not enough bytes to read bytes");
+        }
+
         byte[] bytes = new byte[length];
         System.arraycopy(data, pos, bytes, 0, length);
         pos += length;
         return bytes;
+    }
+
+    public String readString() {
+        StringBuilder sb = new StringBuilder();
+        while (pos < data.length && data[pos] != '\0') {
+            sb.append((char)data[pos++]);
+        }
+        return sb.toString();
+    }
+
+    public String readString(int length) {
+        if (pos + length > data.length) {
+            throw new IllegalStateException("Not enough bytes to read string");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append((char)data[pos++]);
+        }
+        return sb.toString();
     }
 
 }

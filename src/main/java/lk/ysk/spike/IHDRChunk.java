@@ -1,6 +1,13 @@
 package lk.ysk.spike;
 
-public class IHDRChunk extends Chunk {
+public class IHDRChunk extends PngChunk {
+
+    public static final byte[] IHDR_CHUNK_TYPE = {
+            (byte) 0x49,
+            0x48,
+            0x44,
+            0x52
+    };
 
     private final int width;
     private final int height;
@@ -45,5 +52,33 @@ public class IHDRChunk extends Chunk {
         Interlace Method:\t %d
         ---------------
         """.formatted(width, height, bitDepth, colorType, compressionMethod, filterMethod, interlaceMethod);
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getBitDepth() {
+        return bitDepth;
+    }
+
+    public int getColorType() {
+        return colorType;
+    }
+
+    public int getCompressionMethod() {
+        return compressionMethod;
+    }
+
+    public int getFilterMethod() {
+        return filterMethod;
+    }
+
+    public int getInterlaceMethod() {
+        return interlaceMethod;
     }
 }

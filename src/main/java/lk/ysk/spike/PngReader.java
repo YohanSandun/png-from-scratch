@@ -2,7 +2,6 @@ package lk.ysk.spike;
 
 public class PngReader {
 
-    private static final int PNG_SIGNATURE_START = 0;
     private static final byte[] PNG_SIGNATURE = {
             (byte) 0x89,
             0x50,
@@ -14,14 +13,6 @@ public class PngReader {
             0x0A
     };
 
-    private static final int IHDR_CHUNK_START = PNG_SIGNATURE.length;
-    private static final byte[] IHDR_CHUNK_TYPE = {
-            (byte) 0x49,
-            0x48,
-            0x44,
-            0x52
-    };
-
     private final ByteReader byteReader;
 
     public PngReader(ByteReader byteReader) {
@@ -29,7 +20,7 @@ public class PngReader {
     }
 
     public boolean isPng() {
-        byteReader.setPos(PNG_SIGNATURE_START);
+        byteReader.setPos(0);
         for (byte b : PNG_SIGNATURE) {
             if (byteReader.readNextByte() != b) {
                 return false;
@@ -38,8 +29,8 @@ public class PngReader {
         return true;
     }
 
-    public boolean verifyChunkType(byte[] type) {
-        for (byte b : type) {
+    public boolean verifyChunkType(byte[] compareTo) {
+        for (byte b : compareTo) {
             if (byteReader.readNextByte() != b) {
                 return false;
             }
@@ -47,13 +38,47 @@ public class PngReader {
         return true;
     }
 
-    public IHDRChunk getIHDRChunk() {
-        byteReader.setPos(IHDR_CHUNK_START);
+    private boolean isByteSequenceSame(byte[] bytesA, byte[] bytesB) {
+        if (bytesA.length != bytesB.length) return false;
+
+        for (int i = 0; i < bytesB.length; i++) {
+            if (bytesB[i] != bytesA[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private ChunkType readChunkType() {
+        byte[] bytes = byteReader.readBytes(4);
+        if (isByteSequenceSame(bytes, IHDRChunk.IHDR_CHUNK_TYPE)) {
+            return ChunkType.IHDR;
+        }
+        else if (isByteSequenceSame(bytes, tEXtChunk.tEXt_CHUNK_TYPE)) {
+            return ChunkType.tEXt;
+        }
+        return ChunkType.INVALID;
+    }
+
+    public IHDRChunk readIHDRChunk() {
         int length = byteReader.readNextInt32();
-        if (verifyChunkType(IHDR_CHUNK_TYPE)) {
+        if (verifyChunkType(IHDRChunk.IHDR_CHUNK_TYPE)) {
             return new IHDRChunk(length, byteReader.readBytes(length), byteReader.readNextInt32());
         }
-        return null;
+        throw new IllegalArgumentException("IHDR chunk not found!");
+    }
+
+    public PngChunk readChunk() {
+        int length = byteReader.readNextInt32();
+        ChunkType type = readChunkType();
+        byte[] data = byteReader.readBytes(length);
+        int crc = byteReader.readNextInt32();
+
+        return switch (type) {
+            case IHDR -> new IHDRChunk(length, data, crc);
+            case tEXt -> new tEXtChunk(length, data, crc);
+            default -> null;
+        };
     }
 
 }

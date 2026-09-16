@@ -14,11 +14,8 @@ public class Main {
         assert input != null;
 
         ByteReader byteReader = new ByteReader(input.readAllBytes());
-        PngReader pngReader = new PngReader(byteReader);
+        PngImage png = new PngImage(byteReader);
 
-        System.out.println(pngReader.isPng());
-        System.out.println(pngReader.getIHDRChunk());
-
-        //System.out.printf("%X%n", byteReader.getNextByte());
+        System.out.printf("Image Size: %d x %d", png.getWidth(), png.getHeight());
     }
 }

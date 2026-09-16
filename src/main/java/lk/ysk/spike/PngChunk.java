@@ -1,13 +1,13 @@
 package lk.ysk.spike;
 
-public abstract class Chunk {
+public abstract class PngChunk {
 
     private int length;
     private byte[] data;
     private int crc;
     private ChunkType type;
 
-    public Chunk(int length, ChunkType type, byte[] data, int crc) {
+    public PngChunk(int length, ChunkType type, byte[] data, int crc) {
         this.length = length;
         this.data = data;
         this.crc = crc;
