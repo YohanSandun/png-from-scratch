@@ -23,7 +23,7 @@ public class tEXtChunk extends PngChunk {
 
     @Override
     public boolean isValid() {
-        return false;
+        return true;
     }
 
     @Override

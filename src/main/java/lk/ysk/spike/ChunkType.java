@@ -4,6 +4,7 @@ public enum ChunkType {
 
     INVALID,
     IHDR,
-    tEXt
+    tEXt,
+    iTXt
 
 }

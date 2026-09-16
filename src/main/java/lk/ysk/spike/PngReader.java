@@ -57,6 +57,9 @@ public class PngReader {
         else if (isByteSequenceSame(bytes, tEXtChunk.tEXt_CHUNK_TYPE)) {
             return ChunkType.tEXt;
         }
+        else if (isByteSequenceSame(bytes, iTXtChunk.iTXt_CHUNK_TYPE)) {
+            return ChunkType.iTXt;
+        }
         return ChunkType.INVALID;
     }
 
@@ -77,6 +80,7 @@ public class PngReader {
         return switch (type) {
             case IHDR -> new IHDRChunk(length, data, crc);
             case tEXt -> new tEXtChunk(length, data, crc);
+            case iTXt -> new iTXtChunk(length, data, crc);
             default -> null;
         };
     }
