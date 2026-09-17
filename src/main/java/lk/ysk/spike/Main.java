@@ -12,13 +12,13 @@ public class Main {
 
         InputStream input = Main.class
                 .getClassLoader()
-                .getResourceAsStream("sample-images/sample.png");
+                .getResourceAsStream("sample-images/sample1.png");
 
         assert input != null;
 
         ByteReader byteReader = new ByteReader(input.readAllBytes());
         PngImage png = new PngImage(byteReader);
 
-        System.out.printf("Image Size: %d x %d", png.getWidth(), png.getHeight());
+        System.out.printf("Image Size: %d x %d\n", png.getWidth(), png.getHeight());
     }
 }

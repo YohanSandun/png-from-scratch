@@ -1,5 +1,6 @@
 package lk.ysk.spike.png;
 
+import lk.ysk.spike.compression.ZlibDecoder;
 import lk.ysk.spike.io.ByteReader;
 
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ public class PngImage {
             System.arraycopy(chunk.getData(), 0, idat, i, chunk.getLength());
             i += chunk.getLength();
         }
+
+        ZlibDecoder zlibDecoder = new ZlibDecoder(idat);
+        System.out.println(zlibDecoder);
     }
 
     public int getWidth() {
