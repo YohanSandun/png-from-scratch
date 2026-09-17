@@ -4,13 +4,6 @@ import lk.ysk.spike.io.ByteReader;
 
 public class iTXtChunk extends PngChunk {
 
-    public static final byte[] iTXt_CHUNK_TYPE = {
-            (byte) 0x69,
-            0x54,
-            0x58,
-            0x74
-    };
-
     private final String keyword;
     private final int compressionFlag;
     private final int compressionMethod;
@@ -19,7 +12,7 @@ public class iTXtChunk extends PngChunk {
     private final String text;
 
     public iTXtChunk(int length, byte[] data, int crc) {
-        super(length, ChunkType.iTXt, data, crc);
+        super(length, Constants.iTXt, data, crc);
 
         ByteReader byteReader = new ByteReader(data);
         keyword = byteReader.readString();

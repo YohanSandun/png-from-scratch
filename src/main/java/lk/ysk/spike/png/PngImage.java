@@ -23,19 +23,22 @@ public class PngImage {
             throw new IllegalArgumentException("Not a valid PNG image");
         }
 
-        ihdrChunk = pngReader.readIHDRChunk();
-        while (true) {
-            PngChunk chunk = pngReader.readChunk();
-            if (chunk == null || chunk.getType() == ChunkType.IEND) {
-                break;
-            }
+        PngChunk currentChunk = pngReader.readChunk();
+        if (!currentChunk.getType().equals(Constants.IHDR)) {
+            throw new IllegalArgumentException("First chunk is not IHDR");
+        }
+        ihdrChunk = (IHDRChunk) currentChunk;
 
-            if (chunk.getType() == ChunkType.IDAT) {
-                IDATChunk idatChunk = (IDATChunk) chunk;
+        while (true) {
+            currentChunk = pngReader.readChunk();
+            if (currentChunk.getType().equals(Constants.IEND)) {
+                break;
+            } else if (currentChunk.getType().equals(Constants.IDAT)) {
+                IDATChunk idatChunk = (IDATChunk) currentChunk;
                 idatSize += idatChunk.getLength();
                 idatChunks.add(idatChunk);
             } else {
-                ancillaryChunks.add(chunk);
+                ancillaryChunks.add(currentChunk);
             }
         }
 

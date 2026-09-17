@@ -4,13 +4,6 @@ import lk.ysk.spike.io.ByteReader;
 
 public class IHDRChunk extends PngChunk {
 
-    public static final byte[] IHDR_CHUNK_TYPE = {
-            (byte) 0x49,
-            0x48,
-            0x44,
-            0x52
-    };
-
     private final int width;
     private final int height;
     private final int bitDepth;
@@ -20,7 +13,7 @@ public class IHDRChunk extends PngChunk {
     private final int interlaceMethod;
 
     public IHDRChunk(int length, byte[] data, int crc) {
-        super(length, ChunkType.IHDR, data, crc);
+        super(length, Constants.IHDR, data, crc);
 
         ByteReader byteReader = new ByteReader(data);
         width = byteReader.readNextInt32();

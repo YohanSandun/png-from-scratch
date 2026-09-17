@@ -1,13 +1,13 @@
 package lk.ysk.spike.png;
 
-public abstract class PngChunk {
+public class PngChunk {
 
     private int length;
     private byte[] data;
     private int crc;
-    private ChunkType type;
+    private String type;
 
-    public PngChunk(int length, ChunkType type, byte[] data, int crc) {
+    public PngChunk(int length, String type, byte[] data, int crc) {
         this.length = length;
         this.data = data;
         this.crc = crc;
@@ -38,15 +38,17 @@ public abstract class PngChunk {
         this.crc = crc;
     }
 
-    public ChunkType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(ChunkType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public abstract boolean isValid();
+    public boolean isValid() {
+        return false;
+    }
 
     @Override
     public String toString() {
@@ -56,6 +58,6 @@ public abstract class PngChunk {
         Length:\t %d
         CRC:\t %d
         ---------------
-        """.formatted(type.toString(), length, crc);
+        """.formatted(type, length, crc);
     }
 }

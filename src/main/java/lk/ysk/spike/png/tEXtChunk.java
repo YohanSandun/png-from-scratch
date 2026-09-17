@@ -4,18 +4,11 @@ import lk.ysk.spike.io.ByteReader;
 
 public class tEXtChunk extends PngChunk {
 
-    public static final byte[] tEXt_CHUNK_TYPE = {
-            (byte) 0x74,
-            0x45,
-            0x58,
-            0x74
-    };
-
     private final String keyword;
     private final String text;
 
     public tEXtChunk(int length, byte[] data, int crc) {
-        super(length, ChunkType.tEXt, data, crc);
+        super(length, Constants.tEXt, data, crc);
 
         ByteReader byteReader = new ByteReader(data);
         keyword = byteReader.readString();
