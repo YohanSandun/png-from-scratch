@@ -1,4 +1,4 @@
-package lk.ysk.spike;
+package lk.ysk.spike.png;
 
 public class IDATChunk extends PngChunk {
 

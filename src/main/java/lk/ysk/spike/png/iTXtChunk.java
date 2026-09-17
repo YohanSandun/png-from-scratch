@@ -1,4 +1,6 @@
-package lk.ysk.spike;
+package lk.ysk.spike.png;
+
+import lk.ysk.spike.io.ByteReader;
 
 public class iTXtChunk extends PngChunk {
 

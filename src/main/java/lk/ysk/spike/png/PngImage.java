@@ -1,4 +1,6 @@
-package lk.ysk.spike;
+package lk.ysk.spike.png;
+
+import lk.ysk.spike.io.ByteReader;
 
 import java.util.ArrayList;
 

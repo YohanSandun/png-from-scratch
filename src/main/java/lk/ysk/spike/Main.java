@@ -1,5 +1,8 @@
 package lk.ysk.spike;
 
+import lk.ysk.spike.io.ByteReader;
+import lk.ysk.spike.png.PngImage;
+
 import java.io.IOException;
 import java.io.InputStream;
 
