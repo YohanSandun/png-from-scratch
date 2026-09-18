@@ -58,7 +58,9 @@ public class DeflateDecoder {
 
     public DeflateDecoder(byte[] data) {
         bitReader = new BitReader(data);
+    }
 
+    public byte[] decode() {
         int bFinal = 0;
         while (bFinal == 0) {
             bFinal = bitReader.readNextBit();
@@ -75,7 +77,7 @@ public class DeflateDecoder {
             }
         }
 
-        System.out.println(byteWriter);
+        return byteWriter.toByteArray();
     }
 
     private void decodeStoredBlock() {

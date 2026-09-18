@@ -29,10 +29,13 @@ public class ZlibDecoder {
         if (presetDictionary == 1) {
             throw new IllegalArgumentException("Preset dictionaries are not supported in PNGs");
         }
+    }
 
+    public byte[] decode() {
         byte[] deflate = new byte[data.length-2];
         System.arraycopy(data, 2, deflate, 0, deflate.length);
         DeflateDecoder deflateDecoder = new DeflateDecoder(deflate);
+        return deflateDecoder.decode();
     }
 
     private boolean hasValidFCHECK(BitReader bitReader) {

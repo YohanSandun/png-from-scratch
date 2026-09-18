@@ -23,6 +23,12 @@ public class ByteWriter {
         return data[pos];
     }
 
+    public byte[] toByteArray() {
+        byte[] output = new byte[size];
+        System.arraycopy(data, 0, output, 0, size);
+        return output;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
