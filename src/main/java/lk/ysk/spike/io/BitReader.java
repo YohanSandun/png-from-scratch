@@ -45,6 +45,14 @@ public class BitReader {
         return ((data[pos] & 0xFF) << 8) | (data[pos + 1] & 0xFF);
     }
 
+    public int readInt32BigEndian(int pos) {
+        if (pos + 4 > data.length) {
+            throw new IllegalArgumentException("Not enough bytes to read 32 bit integer");
+        }
+
+        return ((data[pos] & 0xFF) << 24) | ((data[pos + 1] & 0xFF) << 16) | ((data[pos + 2] & 0xFF) << 8) | (data[pos + 3] & 0xFF);
+    }
+
     public int readNextUnsignedInt16() {
         if (bytePos + 2 > data.length) {
             throw new IllegalArgumentException("Not enough bytes to read unsigned 16 bit integer");
