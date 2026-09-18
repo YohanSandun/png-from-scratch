@@ -3,7 +3,6 @@ package lk.ysk.spike.compression;
 import lk.ysk.spike.io.BitReader;
 import lk.ysk.spike.io.ByteWriter;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 public class DeflateDecoder {
@@ -50,6 +49,10 @@ public class DeflateDecoder {
             13, 13
     };
 
+    private static final int[] CODE_LENGTH_ORDER = {
+            16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15
+    };
+
     private final BitReader bitReader;
     private final ByteWriter byteWriter = new ByteWriter();
 
@@ -66,8 +69,7 @@ public class DeflateDecoder {
             } else if (bType == 1) {
                 decodeFixedHuffmanBlock();
             } else if (bType == 2) {
-                System.out.println("Not implemented: Compressed with dynamic Huffman codes");
-                break;
+                decodeDynamicHuffmanBlock();
             } else {
                 throw new IllegalArgumentException("Invalid deflate block type");
             }
@@ -119,20 +121,7 @@ public class DeflateDecoder {
         HuffmanDecoder literalLengthDecoder = new HuffmanDecoder(lengths, bitReader);
         HuffmanDecoder distanceDecoder = new HuffmanDecoder(distanceLengths, bitReader);
 
-        int symbol = literalLengthDecoder.getNextSymbol();
-        while (symbol != 256) {
-            if (symbol < 256) {
-                // literal
-                byteWriter.writeByte(symbol);
-            } else {
-                // distance
-                int length = decodeLength(symbol);
-                int distanceSymbol = distanceDecoder.getNextSymbol();
-                int distance = decodeDistance(distanceSymbol);
-                copyDataFromEarlier(length, distance);
-            }
-            symbol = literalLengthDecoder.getNextSymbol();
-        }
+        decodeHuffmanBlock(literalLengthDecoder, distanceDecoder);
     }
 
     private int decodeLength(int symbol) {
@@ -163,5 +152,78 @@ public class DeflateDecoder {
             distance += bitReader.readNextBits(extraBits);
         }
         return  distance;
+    }
+
+    private void decodeHuffmanBlock(HuffmanDecoder literalLengthDecoder, HuffmanDecoder distanceDecoder) {
+        int symbol = literalLengthDecoder.getNextSymbol();
+        while (symbol != 256) {
+            if (symbol < 256) {
+                // literal
+                byteWriter.writeByte(symbol);
+            } else {
+                // distance
+                int length = decodeLength(symbol);
+                int distanceSymbol = distanceDecoder.getNextSymbol();
+                int distance = decodeDistance(distanceSymbol);
+                copyDataFromEarlier(length, distance);
+            }
+            symbol = literalLengthDecoder.getNextSymbol();
+        }
+    }
+
+    private void decodeDynamicHuffmanBlock() {
+        int HLIT = bitReader.readNextBits(5);
+        int HDIST = bitReader.readNextBits(5);
+        int HCLEN = bitReader.readNextBits(4);
+
+        int[] codeLengthCodeLengths = new int[19];
+        for (int i = 0; i < HCLEN + 4; i++) {
+            int symbol = CODE_LENGTH_ORDER[i];
+            codeLengthCodeLengths[symbol] = bitReader.readNextBits(3);
+        }
+
+        HuffmanDecoder codeLengthDecoder = new HuffmanDecoder(codeLengthCodeLengths, bitReader);
+
+        int[] literalLengthCodeLengths = new int[HLIT + 257];
+        int[] distanceCodeLengths = new int[HDIST + 1];
+
+        int index = 0;
+        while (index < literalLengthCodeLengths.length) {
+            index = decodeHuffmanTree(codeLengthDecoder, literalLengthCodeLengths, index);
+        }
+
+        index = 0;
+        while (index < distanceCodeLengths.length) {
+            index = decodeHuffmanTree(codeLengthDecoder, distanceCodeLengths, index);
+        }
+
+        HuffmanDecoder literalLengthDecoder = new HuffmanDecoder(literalLengthCodeLengths, bitReader);
+        HuffmanDecoder distanceDecoder = new HuffmanDecoder(distanceCodeLengths, bitReader);
+
+        decodeHuffmanBlock(literalLengthDecoder, distanceDecoder);
+    }
+
+    private int decodeHuffmanTree(HuffmanDecoder codeLengthDecoder, int[] array, int index) {
+        int codeLengthSymbol = codeLengthDecoder.getNextSymbol();
+        if (codeLengthSymbol <= 15) {
+            array[index++] = codeLengthSymbol;
+        } else if (codeLengthSymbol == 16) {
+            int repeatLength = bitReader.readNextBits(2) + 3;
+            index = repeatCodeLength(array, index, array[index-1], repeatLength);
+        } else if (codeLengthSymbol == 17) {
+            int repeatLength = bitReader.readNextBits(3) + 3;
+            index = repeatCodeLength(array, index, 0, repeatLength);
+        } else if (codeLengthSymbol == 18) {
+            int repeatLength = bitReader.readNextBits(7) + 11;
+            index = repeatCodeLength(array, index, 0, repeatLength);
+        }
+        return index;
+    }
+
+    private int repeatCodeLength(int[] array, int index, int codeLength, int repeat) {
+        for (int i = 0; i < repeat; i++) {
+            array[index++] = codeLength;
+        }
+        return index;
     }
 }
