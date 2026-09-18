@@ -36,7 +36,7 @@ public class ZlibDecoder {
     }
 
     private boolean hasValidFCHECK(BitReader bitReader) {
-        return bitReader.readUnsignedInt16(0) % 31 == 0;
+        return bitReader.readUnsignedInt16BigEndian(0) % 31 == 0;
     }
 
     @Override

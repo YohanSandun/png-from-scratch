@@ -37,21 +37,12 @@ public class BitReader {
         return result;
     }
 
-    public int readNextBitsReversed(int n) {
-        int result = 0;
-        while (n > 0) {
-            result = (result << 1) | readNextBit();
-            n--;
-        }
-        return result;
-    }
-
-    public int readUnsignedInt16(int pos) {
+    public int readUnsignedInt16BigEndian(int pos) {
         if (pos + 2 > data.length) {
             throw new IllegalArgumentException("Not enough bytes to read unsigned 16 bit integer");
         }
 
-        return (data[pos] & 0xFF) | ((data[pos + 1] & 0xFF) << 8);
+        return ((data[pos] & 0xFF) << 8) | (data[pos + 1] & 0xFF);
     }
 
     public int readNextUnsignedInt16() {
