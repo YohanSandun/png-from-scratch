@@ -4,10 +4,19 @@ public class PngFilters {
 
     private final PngRow[] rows;
     private final IHDRChunk ihdrChunk;
+    private final int bytesPerPixel;
 
     public PngFilters(PngRow[] rows, IHDRChunk ihdrChunk) {
         this.rows = rows;
         this.ihdrChunk = ihdrChunk;
+        this.bytesPerPixel = ihdrChunk.getBytesPerPixel();
+    }
+
+    private int left(byte[] row, int index) {
+        if (index < bytesPerPixel) {
+            return 0;
+        }
+        return row[index - bytesPerPixel] & 0xFF;
     }
 
     public byte[][] removeFilters() {
@@ -33,8 +42,8 @@ public class PngFilters {
     }
 
     private void removeSubFilter(byte[] row) {
-        for (int i = ihdrChunk.getBytesPerPixel(); i < row.length; i++) {
-            row[i] = (byte)(((row[i] & 0xFF) + (row[i-4] & 0xFF)) % 256);
+        for (int i = 0; i < row.length; i++) {
+            row[i] = (byte)(((row[i] & 0xFF) + left(row, i)) % 256);
         }
     }
 
@@ -45,16 +54,16 @@ public class PngFilters {
     }
 
     private void removeAverageFilter(byte[] row, byte[] prevRow) {
-        for (int i = ihdrChunk.getBytesPerPixel(); i < row.length; i++) {
-            row[i] = (byte)(((row[i] & 0xFF) + (((row[i-4] & 0xFF) + (prevRow[i] & 0xFF)) >>> 1)) % 256);
+        for (int i = 0; i < row.length; i++) {
+            row[i] = (byte)(((row[i] & 0xFF) + ((left(row, i) + (prevRow[i] & 0xFF)) >>> 1)) % 256);
         }
     }
 
     private void removePaethFilter(byte[] row, byte[] prevRow) {
-        for (int i = ihdrChunk.getBytesPerPixel(); i < row.length; i++) {
-            int a = (row[i-4] & 0xFF);
-            int b = (prevRow[i] & 0xFF);
-            int c = (prevRow[i-4] & 0xFF);
+        for (int i = 0; i < row.length; i++) {
+            int a = left(row, i);
+            int b = prevRow[i] & 0xFF;
+            int c = left(prevRow, i);
             row[i] = (byte)(((row[i] & 0xFF) + calculatePaeth(a, b, c)) % 256);
         }
     }
