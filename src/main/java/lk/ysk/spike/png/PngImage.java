@@ -2,6 +2,9 @@ package lk.ysk.spike.png;
 
 import lk.ysk.spike.compression.ZlibDecoder;
 import lk.ysk.spike.io.ByteReader;
+import lk.ysk.spike.png.chunk.IDATChunk;
+import lk.ysk.spike.png.chunk.IHDRChunk;
+import lk.ysk.spike.png.chunk.PngChunk;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,14 +17,19 @@ public class PngImage {
     private final ArrayList<IDATChunk> idatChunks = new ArrayList<>();
     private int idatSize = 0;
     private final byte[][] pixels;
+    private Raster raster;
 
     public PngImage(ByteReader byteReader) {
         this.pngReader = new PngReader(byteReader);
         this.pixels = decode();
+
+        if (ihdrChunk.getColorType() == Constants.ColorTypes.TRUE_COLOR_WITH_ALPHA) {
+            raster = new RgbaRaster(pixels, ihdrChunk);
+        }
     }
 
-    public byte[][] getPixels() {
-        return pixels;
+    public Raster getRaster() {
+        return raster;
     }
 
     private byte[][] decode() {

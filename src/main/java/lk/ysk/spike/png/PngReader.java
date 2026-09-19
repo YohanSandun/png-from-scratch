@@ -1,6 +1,7 @@
 package lk.ysk.spike.png;
 
 import lk.ysk.spike.io.ByteReader;
+import lk.ysk.spike.png.chunk.*;
 
 public class PngReader {
 

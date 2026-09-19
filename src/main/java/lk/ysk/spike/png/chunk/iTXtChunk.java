@@ -1,6 +1,7 @@
-package lk.ysk.spike.png;
+package lk.ysk.spike.png.chunk;
 
 import lk.ysk.spike.io.ByteReader;
+import lk.ysk.spike.png.Constants;
 
 public class iTXtChunk extends PngChunk {
 

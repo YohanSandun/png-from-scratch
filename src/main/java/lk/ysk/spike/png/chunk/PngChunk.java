@@ -1,4 +1,4 @@
-package lk.ysk.spike.png;
+package lk.ysk.spike.png.chunk;
 
 public class PngChunk {
 

@@ -1,5 +1,7 @@
 package lk.ysk.spike.png;
 
+import lk.ysk.spike.png.chunk.IHDRChunk;
+
 public class PngFilters {
 
     private final PngRow[] rows;

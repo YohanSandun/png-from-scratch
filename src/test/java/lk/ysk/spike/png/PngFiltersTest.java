@@ -1,5 +1,6 @@
 package lk.ysk.spike.png;
 
+import lk.ysk.spike.png.chunk.IHDRChunk;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 

@@ -1,4 +1,6 @@
-package lk.ysk.spike.png;
+package lk.ysk.spike.png.chunk;
+
+import lk.ysk.spike.png.Constants;
 
 public class IENDChunk extends PngChunk {
 
