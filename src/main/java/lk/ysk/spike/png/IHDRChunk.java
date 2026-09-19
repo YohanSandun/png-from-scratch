@@ -11,6 +11,7 @@ public class IHDRChunk extends PngChunk {
     private final int compressionMethod;
     private final int filterMethod;
     private final int interlaceMethod;
+    private final int bytesPerPixel;
 
     public IHDRChunk(int length, byte[] data, int crc) {
         super(length, Constants.IHDR, data, crc);
@@ -23,6 +24,17 @@ public class IHDRChunk extends PngChunk {
         compressionMethod = byteReader.readNextUnsignedByte();
         filterMethod = byteReader.readNextUnsignedByte();
         interlaceMethod = byteReader.readNextUnsignedByte();
+
+        int channels = switch (colorType) {
+            case 0, 3 -> 1;
+            case 2 -> 3;
+            case 4 -> 2;
+            case 6 -> 4;
+            default -> throw new IllegalArgumentException("Invalid color type");
+        };
+
+        int bitsPerPixel = channels * bitDepth;
+        bytesPerPixel = (bitsPerPixel + 7) / 8;
     }
 
     @Override
@@ -75,5 +87,9 @@ public class IHDRChunk extends PngChunk {
 
     public int getInterlaceMethod() {
         return interlaceMethod;
+    }
+
+    public int getBytesPerPixel() {
+        return bytesPerPixel;
     }
 }

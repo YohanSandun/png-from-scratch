@@ -13,13 +13,18 @@ public class PngImage {
     private final ArrayList<PngChunk> ancillaryChunks = new ArrayList<>();
     private final ArrayList<IDATChunk> idatChunks = new ArrayList<>();
     private int idatSize = 0;
+    private final byte[][] pixels;
 
     public PngImage(ByteReader byteReader) {
         this.pngReader = new PngReader(byteReader);
-        decode();
+        this.pixels = decode();
     }
 
-    private void decode() {
+    public byte[][] getPixels() {
+        return pixels;
+    }
+
+    private byte[][] decode() {
         if (!pngReader.isPng()) {
             throw new IllegalArgumentException("Not a valid PNG image");
         }
@@ -43,7 +48,6 @@ public class PngImage {
             }
         }
 
-        // decompression
         byte[] idat = new byte[idatSize];
         int i = 0;
         for (IDATChunk chunk: idatChunks) {
@@ -52,7 +56,24 @@ public class PngImage {
         }
 
         ZlibDecoder zlibDecoder = new ZlibDecoder(idat);
-        System.out.println(Arrays.toString(zlibDecoder.decode()));
+        PngRow[] rows = decodeScanline(zlibDecoder.decode());
+
+        PngFilters filters = new PngFilters(rows, ihdrChunk);
+        return filters.removeFilters();
+    }
+
+    private PngRow[] decodeScanline(byte[] decoded) {
+        PngRow[] imageData = new PngRow[ihdrChunk.getHeight()];
+        int rowBytes = ihdrChunk.getWidth() * ihdrChunk.getBytesPerPixel();
+        int index = 0;
+
+        for (int row = 0; row < ihdrChunk.getHeight(); row++) {
+            int filterType = decoded[index++] & 0xFF;
+            imageData[row] = new PngRow(filterType, Arrays.copyOfRange(decoded, index, index + rowBytes));
+            index += rowBytes;
+        }
+
+        return imageData;
     }
 
     public int getWidth() {
